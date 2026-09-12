@@ -63,7 +63,7 @@ export default async function ProviderDashboard() {
   if (!user) return <div className="p-8 font-bold text-center">No has iniciado sesión</div>;
 
   // 2. Buscar en user_roles qué empresa le corresponde a este correo
-  const { data: roleData } = await supabase.from('user_roles').select('company_id').eq('email', user.email).single();
+  const { data: roleData } = await supabase.from('user_roles').select('company_id, tenant_id').eq('email', user.email).single();
   const companyId = roleData?.company_id;
 
   if (!companyId) return <div className="p-8 font-bold text-center text-rose-600">Error: No tienes una empresa asignada. Contacta al administrador.</div>;
