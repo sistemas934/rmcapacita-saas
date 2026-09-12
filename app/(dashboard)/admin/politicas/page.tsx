@@ -148,3 +148,4 @@ export default async function PoliticasPage() {
       </div>
     </div>
   );
+}
