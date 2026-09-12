@@ -49,11 +49,16 @@ export default function AccesosPage() {
     setResult(null);
 
     try {
-      // 1. Buscar al operario por su DNI (incluyendo el nombre de su empresa y CUIT)
+      // 0. Obtener el tenant_id del administrador actual
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: userRole } = await supabase.from('user_roles').select('tenant_id').eq('user_id', user?.id).single();
+
+      // 1. Buscar al operario por su DNI (incluyendo el nombre de su empresa y filtrando por tenant)
       const { data: employee, error: empError } = await supabase
         .from("employees")
-        .select("*, companies(legal_name, tax_id)")
+        .select("*, companies!inner(legal_name, tax_id, tenant_id)")
         .eq("document_id", cuit)
+        .eq("companies.tenant_id", userRole?.tenant_id)
         .single();
 
       if (empError || !employee) {
