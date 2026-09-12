@@ -49,8 +49,12 @@ export default function Login() {
       <div className="bg-white max-w-md w-full p-8 rounded-3xl shadow-xl border border-slate-100">
         
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 relative bg-white rounded-2xl shadow-sm border border-slate-200 mb-5 p-2 flex items-center justify-center">
-            <img src="/logo.png" alt="RM Logo" className="w-full h-full object-contain" />
+          {/* Logo Puro CSS: "ЯM" con gradiente azul */}
+          <div className="flex items-center justify-center mb-4 select-none">
+            <div className="flex text-5xl md:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-brand-primary to-brand-secondary">
+              <span className="transform -scale-x-100 translate-x-[2px]">R</span>
+              <span>M</span>
+            </div>
           </div>
           <h1 className="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight text-center leading-tight">Control de Proveedores</h1>
           <p className="text-brand-primary font-bold text-[10px] mt-2 uppercase tracking-widest">Portal Corporativo</p>
