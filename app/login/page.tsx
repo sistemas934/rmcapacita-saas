@@ -49,11 +49,11 @@ export default function Login() {
       <div className="bg-white max-w-md w-full p-8 rounded-3xl shadow-xl border border-slate-100">
         
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 bg-brand-primary/10 rounded-2xl flex items-center justify-center mb-4">
-            <Shield className="w-8 h-8 text-brand-primary" />
+          <div className="w-24 h-24 relative rounded-xl overflow-hidden mb-5 border-2 border-slate-100 shadow-sm">
+            <img src="/logo.png" alt="RM Logo" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-3xl font-black text-slate-800 tracking-tight">RMcapacita</h1>
-          <p className="text-slate-500 font-medium text-sm mt-1 uppercase tracking-widest">Portal de Acceso B2B</p>
+          <h1 className="text-2xl font-black text-slate-800 tracking-tight text-center leading-tight">Control de Proveedores<br/>y Documentación</h1>
+          <p className="text-slate-500 font-bold text-xs mt-2 uppercase tracking-widest">Portal de Acceso Corporativo</p>
         </div>
 
         <form onSubmit={handleAuth} className="space-y-5">
