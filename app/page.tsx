@@ -17,14 +17,16 @@ export default function Home() {
       <div className="relative z-10 w-full max-w-xl flex flex-col items-center">
         
         {/* Floating Logo */}
-        <div className="mb-6 relative">
+        <div className="mb-6 relative flex justify-center">
           <div className="absolute -inset-4 bg-gradient-to-br from-brand-primary to-brand-secondary rounded-full blur-2xl opacity-20"></div>
-          <div className="relative w-40 h-40 flex items-center justify-center transform transition-transform hover:scale-105 duration-300">
+          <div className="relative w-56 h-56 flex items-center justify-center transform transition-transform hover:scale-105 duration-300">
             <Image 
               src="/logo.png" 
               alt="RM Sistemas y Capacitaciones" 
               fill 
               className="object-contain drop-shadow-xl"
+              quality={100}
+              unoptimized
               priority
             />
           </div>

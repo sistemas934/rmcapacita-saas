@@ -49,7 +49,7 @@ export default function Login() {
       <div className="bg-white max-w-md w-full p-8 rounded-3xl shadow-xl border border-slate-100">
         
         <div className="flex flex-col items-center mb-8">
-          <div className="w-32 h-32 relative flex items-center justify-center mb-2">
+          <div className="w-44 h-44 relative flex items-center justify-center mb-2 drop-shadow-md">
             <img src="/logo.png" alt="RM Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight text-center leading-tight">Control de Proveedores</h1>
