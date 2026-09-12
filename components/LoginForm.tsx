@@ -30,6 +30,7 @@ export default function LoginForm() {
       setIsLoading(false);
     } else {
       // Si es exitoso, redirigimos al dashboard comercial
+      router.refresh();
       router.push("/admin");
     }
   };
