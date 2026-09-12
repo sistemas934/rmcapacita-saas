@@ -4,9 +4,12 @@
 
 @layer base {
   :root {
-    /* Default Tenant Colors (Metalúrgica Alto Valle S.A.) */
-    --primary: 60, 132, 118;
-    --secondary: 89, 190, 151;
+    /* RM Sistemas y Capacitaciones - Blue Palette */
+    /* Primary: Deep Royal Blue */
+    --primary: 29, 78, 216; /* blue-700 */
+    /* Secondary: Vibrant Blue */
+    --secondary: 59, 130, 246; /* blue-500 */
+    
     --success: 16, 185, 129;
     --warning: 245, 158, 11;
     --error: 244, 63, 94;
