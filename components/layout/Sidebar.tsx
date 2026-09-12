@@ -10,6 +10,15 @@ export async function Sidebar() {
   
   const userEmail = user?.email || "usuario@ejemplo.com";
 
+  // Buscar el rol del usuario
+  const { data: roleData } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('email', userEmail)
+    .single();
+
+  const userRole = roleData?.role || 'TENANT_ADMIN';
+
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0 h-screen sticky top-0 z-20">
       <div>
@@ -19,26 +28,52 @@ export async function Sidebar() {
             <Shield className="w-4 h-4" />
           </div>
           <span className="font-extrabold text-slate-800 tracking-tight text-lg">RMcapacita</span>
-          <span className="ml-1 text-[10px] font-bold text-brand-primary uppercase tracking-widest mt-1">Admin</span>
+          <span className="ml-1 text-[10px] font-bold text-brand-primary uppercase tracking-widest mt-1">
+            {userRole === 'PROVIDER' ? 'Prov' : 'Admin'}
+          </span>
         </div>
 
         {/* Navigation */}
         <nav className="p-4 space-y-1">
-          <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">Principal</p>
-          <Link href="/admin" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors focus:bg-brand-primary/10 focus:text-brand-primary">
-            <Building className="w-4 h-4" />
-            Directorio
-          </Link>
-          <Link href="/admin/accesos" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors focus:bg-slate-50">
-            <Clock className="w-4 h-4 text-slate-400" />
-            Registro de Accesos
-          </Link>
-          
-          <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-6">Administración</p>
-          <Link href="/admin/usuarios" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors focus:bg-slate-50">
-            <UserPlus className="w-4 h-4 text-slate-400" />
-            Nuevo Usuario
-          </Link>
+          {userRole === 'TENANT_ADMIN' ? (
+            <>
+              <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">Principal</p>
+              <Link href="/admin" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors focus:bg-brand-primary/10 focus:text-brand-primary">
+                <Building className="w-4 h-4" />
+                Directorio
+              </Link>
+              <Link href="/admin/accesos" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors focus:bg-slate-50">
+                <Clock className="w-4 h-4 text-slate-400" />
+                Registro de Accesos
+              </Link>
+              <Link href="/admin/personal" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors focus:bg-slate-50">
+                <UserPlus className="w-4 h-4 text-slate-400" />
+                Personal Autorizado
+              </Link>
+              
+              <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-6">Administración</p>
+              <Link href="/admin/politicas" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors focus:bg-slate-50">
+                <Shield className="w-4 h-4 text-slate-400" />
+                Políticas de Ingreso
+              </Link>
+              <Link href="/admin/usuarios" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors focus:bg-slate-50">
+                <Building className="w-4 h-4 text-slate-400" />
+                Nueva Empresa
+              </Link>
+            </>
+          ) : userRole === 'PROVIDER' ? (
+            <>
+              <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">Mi Empresa</p>
+              <Link href="/proveedor" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors focus:bg-brand-primary/10 focus:text-brand-primary">
+                <Shield className="w-4 h-4" />
+                Documentación y Políticas
+              </Link>
+              <Link href="/proveedor/personal" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors focus:bg-slate-50">
+                <UserPlus className="w-4 h-4 text-slate-400" />
+                Personal Autorizado
+              </Link>
+            </>
+          ) : null}
         </nav>
       </div>
 
