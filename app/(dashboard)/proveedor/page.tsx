@@ -76,9 +76,25 @@ export default async function ProviderDashboard() {
   const { data: documents } = await supabase.from('documents').select('*').eq('company_id', companyId);
   const docs = documents || [];
 
+  // 5. Políticas y Cumplimiento
+  const tenantId = roleData?.tenant_id;
+  
+  // Buscar todas las políticas del tenant
+  const { data: allPolicies } = await supabase.from('policies').select('*').eq('tenant_id', tenantId);
+  
+  // Buscar las que ya aceptó esta empresa
+  const { data: acceptedPolicies } = await supabase.from('company_policies_acceptance').select('policy_id').eq('company_id', companyId);
+  const acceptedIds = acceptedPolicies?.map(p => p.policy_id) || [];
+  
+  const pendingPolicies = allPolicies?.filter(p => !acceptedIds.includes(p.id)) || [];
+  const hasPendingPolicies = pendingPolicies.length > 0;
+
+  // Server action inside component for accepting policy (must be passed to a form or extracted)
+  // Actually, we need to extract the server action to the top level.
+
   const renderSection = (title: string, list: any[], modColor: string) => {
     return (
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-8">
+      <div className={`bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-8 ${hasPendingPolicies ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
         <div className={`px-6 py-4 border-b border-slate-100 bg-${modColor}-50/50 flex items-center gap-3`}>
           <div className={`w-8 h-8 rounded-lg bg-${modColor}-100 text-${modColor}-600 flex items-center justify-center font-black text-sm border border-${modColor}-200`}>
             <Layers className="w-4 h-4" />
@@ -110,8 +126,11 @@ export default async function ProviderDashboard() {
                 
                 <div className="flex items-center gap-4 w-full md:w-auto md:justify-end shrink-0">
                   <Badge status={status} />
-                  {!isApproved && (
+                  {!isApproved && !hasPendingPolicies && (
                     <FileUploadButton documentType={req.id} companyId={companyId} />
+                  )}
+                  {hasPendingPolicies && (
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-3 py-2 rounded-lg">Bloqueado</span>
                   )}
                 </div>
               </div>
@@ -133,8 +152,47 @@ export default async function ProviderDashboard() {
         </p>
       </div>
 
+      {hasPendingPolicies && (
+        <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 shadow-sm animate-in fade-in slide-in-from-top-4 relative overflow-hidden">
+          <div className="flex items-start gap-4 relative z-10">
+            <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-black text-red-900 mb-2">Atención: Términos y Políticas Pendientes</h3>
+              <p className="text-red-700 text-sm font-medium mb-4">
+                El administrador ha establecido políticas de ingreso que debes leer y aceptar antes de poder subir documentación de tu empresa o de tus operarios.
+              </p>
+              
+              <div className="space-y-4">
+                {pendingPolicies.map(policy => (
+                  <div key={policy.id} className="bg-white p-5 rounded-xl border border-red-100 shadow-sm">
+                    <h4 className="font-bold text-slate-900 mb-2">{policy.title}</h4>
+                    <p className="text-sm text-slate-600 whitespace-pre-wrap mb-4">{policy.content}</p>
+                    
+                    <form action={async () => {
+                      "use server";
+                      const supabase = createClient();
+                      await supabase.from('company_policies_acceptance').insert({
+                        company_id: companyId,
+                        policy_id: policy.id
+                      });
+                      revalidatePath('/proveedor');
+                    }}>
+                      <button type="submit" className="bg-brand-primary hover:bg-brand-secondary text-white font-bold px-6 py-2.5 rounded-lg text-sm transition-colors shadow-sm">
+                        Comprendo y Acepto las Condiciones
+                      </button>
+                    </form>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toggles Decorativos convertidos a Funcionales */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative overflow-hidden">
+      <div className={`bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative overflow-hidden ${hasPendingPolicies ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
         <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
         <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4 relative z-10">
           <Layers className="text-brand-primary w-4 h-4" /> Módulos de Actividades Específicas

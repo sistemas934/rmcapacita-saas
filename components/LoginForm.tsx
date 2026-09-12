@@ -29,9 +29,26 @@ export default function LoginForm() {
       setErrorMsg("Credenciales incorrectas o usuario no encontrado.");
       setIsLoading(false);
     } else {
-      // Si es exitoso, redirigimos al dashboard comercial
+      // Buscar el rol del usuario
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('email', email)
+        .single();
+        
       router.refresh();
-      router.push("/admin");
+      
+      // Redirigir según el rol
+      const userRole = roleData?.role;
+      if (userRole === 'SUPER_ADMIN') {
+        router.push("/superadmin");
+      } else if (userRole === 'PROVIDER') {
+        router.push("/proveedor");
+      } else if (userRole === 'GUARD') {
+        router.push("/guardia");
+      } else {
+        router.push("/admin"); // Default to TENANT_ADMIN
+      }
     }
   };
 
