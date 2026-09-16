@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Plus, Loader2 } from "lucide-react";
@@ -37,12 +37,12 @@ export function AddVehicleForm({ companyId, addAction }: { companyId: string, ad
         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Modelo</label>
         <input type="text" name="model" required className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-brand-primary outline-none" placeholder="Ej. Hilux" />
       </div>
-      <div className="w-[120px]">
+      <div className="w-[100px] shrink-0">
         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Año</label>
-        <input type="number" name="year" required min="1990" max="2030" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-brand-primary outline-none" placeholder="Ej. 2023" />
+        <input type="number" name="year" required min="1990" max="2030" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-brand-primary outline-none" placeholder="2023" />
       </div>
       
-      <button disabled={loading} type="submit" className="bg-brand-primary hover:bg-brand-secondary text-white font-bold px-6 py-2 rounded-lg flex items-center justify-center gap-2 h-[38px] min-w-[140px] transition-colors disabled:opacity-50">
+      <button disabled={loading} type="submit" className="bg-brand-primary hover:bg-brand-secondary text-white font-bold px-6 py-2 rounded-lg flex items-center justify-center gap-2 h-[38px] shrink-0 transition-colors disabled:opacity-50">
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Plus className="w-4 h-4" /> Agregar</>}
       </button>
     </form>
