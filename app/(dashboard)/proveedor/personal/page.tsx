@@ -1,11 +1,23 @@
 import { createClient } from "@/utils/supabase/server";
-import { Users, Info, ShieldCheck, Plus, Loader2 } from "lucide-react";
+import { Users, FileText, FileCheck2 } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { AddEmployeeForm } from "@/components/proveedor/AddEmployeeForm";
+import { DocumentModal } from "@/components/proveedor/DocumentModal";
+import { Badge } from "@/components/ui/Badge";
+import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
 
-export default async function ProviderPersonalPage() {
+const EMPLOYEE_REQ = [
+  { id: 'AltaAFIP', title: 'Alta Temprana AFIP', desc: 'Constancia de alta del empleado.' },
+  { id: 'DNI_Frente', title: 'DNI (Frente y Dorso)', desc: 'Copia legible del documento.' },
+];
+
+export default async function ProviderPersonalPage({
+  searchParams
+}: {
+  searchParams: { doc_employee?: string }
+}) {
   const supabase = createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
@@ -17,11 +29,44 @@ export default async function ProviderPersonalPage() {
 
   if (!companyId) return <div className="p-8 font-bold text-center text-rose-600">Error: No tienes una empresa asignada.</div>;
 
+  // 1. Fetch Employees
   const { data: employees } = await supabase
     .from('employees')
     .select('*')
     .eq('company_id', companyId)
     .order('created_at', { ascending: false });
+
+  // 2. Fetch Employee Documents
+  const { data: documents } = await supabase
+    .from('documents')
+    .select('status, employee_id, document_type')
+    .eq('company_id', companyId)
+    .not('employee_id', 'is', null);
+
+  const docs = documents || [];
+
+  function getComplianceStatus(employeeId: string) {
+    const empDocs = docs.filter(d => d.employee_id === employeeId);
+    if (empDocs.length === 0) return "INCOMPLETO";
+
+    let hasRejected = false;
+    let hasPending = false;
+    let approvedCount = 0;
+
+    for (const req of EMPLOYEE_REQ) {
+      const doc = empDocs.find(d => d.document_type === req.id);
+      if (!doc) continue;
+      if (doc.status === 'REJECTED' || doc.status === 'EXPIRED') hasRejected = true;
+      if (doc.status === 'PENDING') hasPending = true;
+      if (doc.status === 'APPROVED') approvedCount++;
+    }
+
+    if (hasRejected) return "RECHAZADO";
+    if (hasPending) return "PENDIENTE";
+    if (approvedCount === EMPLOYEE_REQ.length) return "APTO";
+    
+    return "INCOMPLETO";
+  }
 
   async function addEmployee(formData: FormData) {
     "use server";
@@ -46,57 +91,84 @@ export default async function ProviderPersonalPage() {
     return { success: true };
   }
 
+  const selectedEmployee = searchParams.doc_employee 
+    ? employees?.find(e => e.id === searchParams.doc_employee)
+    : null;
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
+
+      {selectedEmployee && tenantId && (
+        <DocumentModal
+          title={`Documentos: ${selectedEmployee.full_name}`}
+          requirements={EMPLOYEE_REQ}
+          entityId={selectedEmployee.id}
+          entityType="employee"
+          companyId={companyId}
+          tenantId={tenantId}
+          backUrl="/proveedor/personal"
+        />
+      )}
+
       <div className="mb-8 flex justify-between items-end">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-            <Users className="w-8 h-8 text-brand-primary" />
-            Personal Autorizado
+          <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+            <Users className="w-8 h-8 text-blue-600" />
+            Nómina de Personal
           </h2>
           <p className="text-slate-500 font-medium mt-2 text-sm">
-            Administra la nÃ³mina de operarios de tu empresa.
+            Gestión corporativa de operarios y autorizaciones de ingreso.
           </p>
         </div>
       </div>
 
-      <AddEmployeeForm companyId={companyId} tenantId={tenantId} addAction={addEmployee} />
+      <AddEmployeeForm companyId={companyId} tenantId={tenantId || ''} addAction={addEmployee} />
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h3 className="text-sm font-bold text-slate-800">Mi NÃ³mina</h3>
-          <span className="bg-brand-primary/10 text-brand-primary font-bold text-xs px-2.5 py-1 rounded-full">
-            {employees?.length || 0} Registros
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mt-6">
+        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-gradient-to-b from-white to-slate-50">
+          <h3 className="text-sm font-bold text-slate-800">Personal Registrado</h3>
+          <span className="bg-blue-50 text-blue-700 font-bold text-[10px] px-2.5 py-1 rounded-md border border-blue-100 uppercase tracking-wider">
+            {employees?.length || 0} Operarios
           </span>
         </div>
         
         {!employees || employees.length === 0 ? (
-          <div className="text-center py-16">
-            <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-bold text-sm">No tienes operarios asignados.</p>
+          <div className="flex flex-col items-center justify-center py-16 bg-slate-50/30">
+            <Users className="w-10 h-10 text-slate-300 mb-3" />
+            <p className="text-slate-600 font-bold text-sm">No tienes operarios asignados.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-white text-slate-400 text-xs uppercase tracking-wider font-bold border-b border-slate-100">
+              <thead className="bg-slate-50/80 text-slate-500 font-bold text-xs uppercase tracking-wider border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4">Nombre Completo</th>
-                  <th className="px-6 py-4">DNI</th>
-                  <th className="px-6 py-4 text-right">Estado Inicial</th>
+                  <th className="px-5 py-4">Nombre Completo</th>
+                  <th className="px-5 py-4">DNI</th>
+                  <th className="px-5 py-4">Estado</th>
+                  <th className="px-5 py-4 text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
-                {employees.map((emp) => (
-                  <tr key={emp.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-slate-800">{emp.full_name}</td>
-                    <td className="px-6 py-4 font-medium text-slate-500">{emp.document_id}</td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="inline-flex items-center gap-1 bg-semantic-success/10 text-semantic-success font-bold text-[10px] uppercase px-2.5 py-1 rounded-full border border-semantic-success/20">
-                        <ShieldCheck className="w-3 h-3" /> Registrado
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-slate-100">
+                {employees.map((emp) => {
+                  const status = getComplianceStatus(emp.id);
+                  return (
+                    <tr key={emp.id} className="hover:bg-blue-50/30 transition-colors group">
+                      <td className="px-5 py-4 font-bold text-slate-800">{emp.full_name}</td>
+                      <td className="px-5 py-4 font-medium text-slate-500">{emp.document_id}</td>
+                      <td className="px-5 py-4">
+                        <Badge status={status} />
+                      </td>
+                      <td className="px-5 py-4 text-right flex justify-end gap-2">
+                        <Link 
+                          href={`/proveedor/personal?doc_employee=${emp.id}`}
+                          className="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-md border border-slate-200 hover:border-blue-200 transition-all shadow-sm group-hover:shadow"
+                        >
+                          <FileText className="w-3.5 h-3.5" /> Documentación
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
