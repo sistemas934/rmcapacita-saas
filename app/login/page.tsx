@@ -26,7 +26,7 @@ export default function Login() {
       }
 
       // Lógica de Redirección (El Patovica Inteligente)
-      const { data: roleData } = await supabase.from('user_roles').select('*').eq('email', email).single();
+      const { data: roleData } = await supabase.from('user_roles').select('*').eq('email', email).maybeSingle();
       
       if (roleData?.role === 'SUPERADMIN') {
         router.push('/superadmin');
