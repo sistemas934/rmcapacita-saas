@@ -1,5 +1,6 @@
 import { FolderOpen, Layers, ShieldCheck, FileCheck2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { ModuleToggle } from "@/components/proveedor/ModuleToggle";
 import { FileUploadButton } from "@/components/proveedor/FileUploadButton";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -200,27 +201,21 @@ export default async function ProviderDashboard() {
         <p className="text-xs text-slate-500 font-medium mb-4 relative z-10">Active los módulos según el trabajo a realizar en planta para revelar los requisitos documentales.</p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
-          {[
-            { key: 'equipos', label: 'Equipos y Vehículos', color: 'text-indigo-600 focus:ring-indigo-500' },
-            { key: 'altura', label: 'Trabajos en Altura', color: 'text-orange-500 focus:ring-orange-500' },
-            { key: 'obra', label: 'Obra Constructiva', color: 'text-purple-600 focus:ring-purple-500' }
-          ].map((mod) => (
-            <form key={mod.key} action={toggleModule}>
-              <input type="hidden" name="companyId" value={companyId} />
-              <input type="hidden" name="modulo" value={mod.key} />
-              <input type="hidden" name="estado" value={(mods as any)[mod.key] ? "false" : "true"} />
-              
-              <button type="submit" className="w-full flex items-start gap-4 p-4 rounded-xl border border-slate-200 hover:border-brand-primary/50 hover:bg-slate-50 transition-all cursor-pointer group text-left">
-                <div className="mt-0.5">
-                  <input type="checkbox" checked={(mods as any)[mod.key] === true} readOnly className={`w-4 h-4 rounded border-slate-300 transition-all cursor-pointer ${mod.color}`} />
-                </div>
-                <div>
-                  <span className="block text-sm font-bold text-slate-700 group-hover:text-brand-primary transition-colors">{mod.label}</span>
-                  <span className="block text-[10px] text-slate-500 mt-0.5">Módulo extra</span>
-                </div>
-              </button>
-            </form>
-          ))}
+            {[
+              { key: 'equipos', label: 'Equipos y Vehículos', color: 'text-indigo-600 focus:ring-indigo-500' },
+              { key: 'altura', label: 'Trabajos en Altura', color: 'text-orange-500 focus:ring-orange-500' },
+              { key: 'obra', label: 'Obra Constructiva', color: 'text-purple-600 focus:ring-purple-500' }
+            ].map((mod) => (
+              <ModuleToggle 
+                key={mod.key}
+                modKey={mod.key}
+                label={mod.label}
+                color={mod.color}
+                companyId={companyId}
+                initialState={(mods as any)[mod.key] === true}
+                toggleAction={toggleModule}
+              />
+            ))}
         </div>
       </div>
 

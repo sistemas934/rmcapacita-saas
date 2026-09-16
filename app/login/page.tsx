@@ -28,7 +28,7 @@ export default function Login() {
       // Lógica de Redirección (El Patovica Inteligente)
       const { data: roleData } = await supabase.from('user_roles').select('*').eq('email', email).maybeSingle();
       
-      if (roleData?.role === 'SUPERADMIN') {
+      if (roleData?.role === 'SUPER_ADMIN') {
         router.push('/superadmin');
       } else if (roleData?.role === 'TENANT_ADMIN') {
         router.push('/admin');
@@ -93,6 +93,11 @@ export default function Login() {
           >
             {isSignUp ? '¿Ya tienes cuenta? Inicia Sesión' : '¿No tienes cuenta? Regístrate aquí'}
           </button>
+          
+          {/* Debug Info para solucionar el problema */}
+          <p className="text-[10px] text-slate-300 mt-4">
+            Servidor Activo: {process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(-20) || 'No URL'}
+          </p>
         </div>
       </div>
     </div>
