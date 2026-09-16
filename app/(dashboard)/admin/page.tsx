@@ -1,5 +1,6 @@
 import { Building, FileText, Clock, AlertTriangle } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
+import { Badge } from "@/components/ui/Badge";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -28,11 +29,24 @@ export default async function AdminDashboard() {
   // 3. Traer SOLO los documentos de este Tenant
   const { data: documents, error: errDoc } = await supabase
     .from('documents')
-    .select('status, companies!inner(tenant_id)')
+    .select('status, company_id, companies!inner(tenant_id)')
     .eq('companies.tenant_id', tenantId);
 
   const docs = documents || [];
   
+  // Helper to calculate company status
+  function getCompanyStatus(companyId: string) {
+    const compDocs = docs.filter(d => d.company_id === companyId);
+    if (compDocs.length === 0) return "INCOMPLETO"; // or "NO_CARGADO"
+    
+    const hasRejected = compDocs.some(d => d.status === 'REJECTED' || d.status === 'EXPIRED');
+    const hasPending = compDocs.some(d => d.status === 'PENDING');
+    
+    if (hasRejected) return "RECHAZADO";
+    if (hasPending) return "PENDIENTE";
+    return "APTO";
+  }
+
   // Calcular métricas
   const numDocs = docs.length;
   const numPending = docs.filter(d => d.status === 'PENDING').length;
@@ -109,7 +123,7 @@ export default async function AdminDashboard() {
                     <th className="px-4 py-3">Empresa</th>
                     <th className="px-4 py-3">CUIT / RUT</th>
                     <th className="px-4 py-3">Ciudad</th>
-                    <th className="px-4 py-3">Registro</th>
+                    <th className="px-4 py-3">Estado</th>
                     <th className="px-4 py-3 text-right">Acción</th>
                   </tr>
                 </thead>
@@ -119,7 +133,9 @@ export default async function AdminDashboard() {
                       <td className="px-4 py-3 font-bold text-slate-800">{company.legal_name}</td>
                       <td className="px-4 py-3">{company.tax_id}</td>
                       <td className="px-4 py-3">{company.city || '-'}</td>
-                      <td className="px-4 py-3">{new Date(company.created_at).toLocaleDateString()}</td>
+                      <td className="px-4 py-3">
+                        <Badge status={getCompanyStatus(company.id)} />
+                      </td>
                       <td className="px-4 py-3 text-right">
                         <a 
                           href={`/admin/empresa/${company.id}`}
