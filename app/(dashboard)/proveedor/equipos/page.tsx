@@ -3,6 +3,7 @@ import { Wrench, ShieldCheck, FileText } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { AddEquipmentForm } from "@/components/proveedor/AddEquipmentForm";
 import { DocumentModal } from "@/components/proveedor/DocumentModal";
+import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -67,6 +68,30 @@ export default async function ProviderEquipmentPage({
   const selectedEquipment = searchParams.doc_equipment ? equipment?.find(e => e.id === searchParams.doc_equipment) : null;
   const reqList = selectedEquipment?.category === 'izaje' ? REQ_EQUIP_IZAJE : REQ_EQUIP_SUELO;
 
+  function getComplianceStatus(entityId: string, category: string) {
+    const entityDocs = (documents || []).filter((d: any) => d.equipment_id === entityId);
+    const reqs = category === 'izaje' ? REQ_EQUIP_IZAJE : REQ_EQUIP_SUELO;
+    let hasMissing = false;
+    let hasRejected = false;
+    let hasPending = false;
+
+    for (const req of reqs) {
+      const doc = entityDocs.find((d: any) => d.document_type === req.id);
+      if (!doc) {
+        hasMissing = true;
+      } else if (doc.status === 'REJECTED') {
+        hasRejected = true;
+      } else if (doc.status === 'PENDING') {
+        hasPending = true;
+      }
+    }
+
+    if (hasRejected) return "RECHAZADO";
+    if (hasMissing) return "INCOMPLETO";
+    if (hasPending) return "PENDIENTE";
+    return "APTO";
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       
@@ -117,27 +142,34 @@ export default async function ProviderEquipmentPage({
                   <th className="px-6 py-4">Categoría</th>
                   <th className="px-6 py-4">ID Interno</th>
                   <th className="px-6 py-4">Descripción</th>
+                  <th className="px-6 py-4">Estado</th>
                   <th className="px-6 py-4 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {equipment.map((eq) => (
-                  <tr key={eq.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-slate-800">
-                      {eq.category === "izaje" ? "🏗️ Izaje" : eq.category === "movimiento_suelo" ? "🚜 Mov. de Suelo" : "Otro"}
-                    </td>
-                    <td className="px-6 py-4 font-bold text-slate-800 uppercase">{eq.internal_id}</td>
-                    <td className="px-6 py-4 font-medium text-slate-500">{eq.description}</td>
-                    <td className="px-6 py-4 text-right flex justify-end gap-2">
-                      <Link 
-                        href={`/proveedor/equipos?doc_equipment=${eq.id}`}
-                        className="inline-flex items-center gap-1.5 bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary font-bold text-[11px] uppercase px-3 py-1.5 rounded border border-brand-primary/20 transition-colors"
-                      >
-                        <FileText className="w-3.5 h-3.5" /> Docs
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                {equipment.map((eq) => {
+                  const status = getComplianceStatus(eq.id, eq.category);
+                  return (
+                    <tr key={eq.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-800">
+                        {eq.category === "izaje" ? "🏗️ Izaje" : eq.category === "movimiento_suelo" ? "🚜 Mov. de Suelo" : "Otro"}
+                      </td>
+                      <td className="px-6 py-4 font-bold text-slate-800 uppercase">{eq.internal_id}</td>
+                      <td className="px-6 py-4 font-medium text-slate-500">{eq.description}</td>
+                      <td className="px-6 py-4">
+                        <Badge status={status} />
+                      </td>
+                      <td className="px-6 py-4 text-right flex justify-end gap-2">
+                        <Link 
+                          href={`/proveedor/equipos?doc_equipment=${eq.id}`}
+                          className="inline-flex items-center gap-1.5 bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary font-bold text-[11px] uppercase px-3 py-1.5 rounded border border-brand-primary/20 transition-colors"
+                        >
+                          <FileText className="w-3.5 h-3.5" /> Docs
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

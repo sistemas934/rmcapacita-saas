@@ -21,6 +21,7 @@ export function Badge({ status }: { status: BadgeStatus | string }) {
     VENCIDO: "VENCIDO",
     CONDICIONAL: "CONDICIONAL",
     NO_CARGADO: "NO CARGADO",
+    INCOMPLETO: "INCOMPLETO",
   };
 
   // Traffic light colors configuration
@@ -35,6 +36,7 @@ export function Badge({ status }: { status: BadgeStatus | string }) {
     EXPIRED: "bg-slate-100 text-slate-600 border-slate-200",
     VENCIDO: "bg-slate-100 text-slate-600 border-slate-200",
     NO_CARGADO: "bg-slate-50 text-slate-400 border-slate-200",
+    INCOMPLETO: "bg-slate-100 text-slate-500 border-slate-300",
   };
 
   const dotColor: Record<string, string> = {
@@ -48,6 +50,7 @@ export function Badge({ status }: { status: BadgeStatus | string }) {
     EXPIRED: "bg-slate-400",
     VENCIDO: "bg-slate-400",
     NO_CARGADO: "bg-transparent",
+    INCOMPLETO: "bg-slate-400",
   };
 
   const finalLabel = labelMap[normalizedStatus] || status.replace("_", " ");

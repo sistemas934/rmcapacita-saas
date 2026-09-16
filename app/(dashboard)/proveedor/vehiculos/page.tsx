@@ -3,6 +3,7 @@ import { Truck, ShieldCheck, Users, FileText } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { AddVehicleForm } from "@/components/proveedor/AddVehicleForm";
 import { DocumentModal } from "@/components/proveedor/DocumentModal";
+import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -59,6 +60,29 @@ export default async function ProviderVehiclesPage({
 
   const selectedVehicle = searchParams.doc_vehicle ? vehicles?.find(v => v.id === searchParams.doc_vehicle) : null;
 
+  function getComplianceStatus(entityId: string) {
+    const entityDocs = (documents || []).filter((d: any) => d.vehicle_id === entityId);
+    let hasMissing = false;
+    let hasRejected = false;
+    let hasPending = false;
+
+    for (const req of REQ_VEHICLE) {
+      const doc = entityDocs.find((d: any) => d.document_type === req.id);
+      if (!doc) {
+        hasMissing = true;
+      } else if (doc.status === 'REJECTED') {
+        hasRejected = true;
+      } else if (doc.status === 'PENDING') {
+        hasPending = true;
+      }
+    }
+
+    if (hasRejected) return "RECHAZADO";
+    if (hasMissing) return "INCOMPLETO";
+    if (hasPending) return "PENDIENTE";
+    return "APTO";
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       
@@ -109,25 +133,32 @@ export default async function ProviderVehiclesPage({
                   <th className="px-6 py-4">Patente</th>
                   <th className="px-6 py-4">Marca y Modelo</th>
                   <th className="px-6 py-4">Año</th>
+                  <th className="px-6 py-4">Estado</th>
                   <th className="px-6 py-4 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {vehicles.map((veh) => (
-                  <tr key={veh.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-slate-800 uppercase">{veh.domain}</td>
-                    <td className="px-6 py-4 font-medium text-slate-500">{veh.brand} {veh.model}</td>
-                    <td className="px-6 py-4 text-slate-500">{veh.year}</td>
-                    <td className="px-6 py-4 text-right flex justify-end gap-2">
-                      <Link 
-                        href={`/proveedor/vehiculos?doc_vehicle=${veh.id}`}
-                        className="inline-flex items-center gap-1.5 bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary font-bold text-[11px] uppercase px-3 py-1.5 rounded border border-brand-primary/20 transition-colors"
-                      >
-                        <FileText className="w-3.5 h-3.5" /> Docs
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                {vehicles.map((veh) => {
+                  const status = getComplianceStatus(veh.id);
+                  return (
+                    <tr key={veh.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-800 uppercase">{veh.domain}</td>
+                      <td className="px-6 py-4 font-medium text-slate-500">{veh.brand} {veh.model}</td>
+                      <td className="px-6 py-4 text-slate-500">{veh.year}</td>
+                      <td className="px-6 py-4">
+                        <Badge status={status} />
+                      </td>
+                      <td className="px-6 py-4 text-right flex justify-end gap-2">
+                        <Link 
+                          href={`/proveedor/vehiculos?doc_vehicle=${veh.id}`}
+                          className="inline-flex items-center gap-1.5 bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary font-bold text-[11px] uppercase px-3 py-1.5 rounded border border-brand-primary/20 transition-colors"
+                        >
+                          <FileText className="w-3.5 h-3.5" /> Docs
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
