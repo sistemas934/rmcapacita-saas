@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useOptimistic, useTransition } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function ModuleToggle({ 
   modKey, 
@@ -16,7 +17,7 @@ export function ModuleToggle({
   color: string, 
   companyId: string, 
   initialState: boolean,
-  toggleAction: (formData: FormData) => Promise<void>
+  toggleAction: (formData: FormData) => Promise<{error?: string, success?: boolean}>
 }) {
   const [isPending, startTransition] = useTransition();
   
@@ -30,7 +31,8 @@ export function ModuleToggle({
     <form action={(formData) => {
       startTransition(async () => {
         addOptimisticState(!optimisticState);
-        await toggleAction(formData);
+        const res = await toggleAction(formData);
+        if (res?.error) toast.error(res.error);
       });
     }}>
       <input type="hidden" name="companyId" value={companyId} />

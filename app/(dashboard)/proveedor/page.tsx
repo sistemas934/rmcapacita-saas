@@ -1,6 +1,7 @@
 import { FolderOpen, Layers, ShieldCheck, FileCheck2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { ModuleToggle } from "@/components/proveedor/ModuleToggle";
+import { TypeToggle } from "@/components/proveedor/TypeToggle";
 import { FileUploadButton } from "@/components/proveedor/FileUploadButton";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -56,9 +57,11 @@ async function toggleModule(formData: FormData) {
   currentModules[modKey] = isChecked;
 
   // 3. Guardar
-  await supabase.from('companies').update({ active_modules: currentModules }).eq('id', companyId);
+  const { error } = await supabase.from('companies').update({ active_modules: currentModules }).eq('id', companyId);
+  if (error) return { error: error.message };
   
   revalidatePath('/proveedor');
+  return { success: true };
 }
 
 export default async function ProviderDashboard() {
@@ -97,8 +100,10 @@ export default async function ProviderDashboard() {
     const companyId = formData.get('companyId') as string;
     const pType = formData.get('provider_type') as string;
     const supabase = createClient();
-    await supabase.from('companies').update({ provider_type: pType }).eq('id', companyId);
+    const { error } = await supabase.from('companies').update({ provider_type: pType }).eq('id', companyId);
+    if (error) return { error: error.message };
     revalidatePath('/proveedor');
+    return { success: true };
   }
 
   const docs = documents || [];
@@ -243,15 +248,11 @@ export default async function ProviderDashboard() {
           <h3 className="font-bold text-slate-800">Tipo de Contratista</h3>
           <p className="text-xs text-slate-500">Seleccione si es empresa con empleados o trabajador autónomo.</p>
         </div>
-        <form action={toggleType} className="flex bg-slate-100 p-1 rounded-lg">
-          <input type="hidden" name="companyId" value={companyId} />
-          <button type="submit" name="provider_type" value="relacion_dependencia" className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${providerType === 'relacion_dependencia' ? 'bg-white text-brand-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-            Relación de Dependencia
-          </button>
-          <button type="submit" name="provider_type" value="autonomo" className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${providerType === 'autonomo' ? 'bg-white text-brand-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-            Trabajador Autónomo
-          </button>
-        </form>
+        <TypeToggle 
+          companyId={companyId} 
+          initialType={providerType} 
+          toggleAction={toggleType} 
+        />
       </div>
 
       {providerType === 'autonomo' 
