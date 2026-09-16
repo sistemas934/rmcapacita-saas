@@ -9,13 +9,11 @@ const REQ_RELACION = [
   { id: 'Seguro SVO', title: 'Seguro de Vida Obligatorio (SVO)', desc: 'Con subrogación a la empresa contratante.' },
   { id: 'Seguro ART', title: 'Certificado de Cobertura ART', desc: 'Cláusula de no repetición incluida.' },
   { id: 'Planilla EPP', title: 'Planilla de Entrega EPP 299/11', desc: 'Firmada por el empleado.' },
-  { id: 'Constancia CBU', title: 'Constancia de CBU / Certificado Bancario', desc: 'Cuenta bancaria a nombre de la empresa.' },
 ];
 
 const REQ_AUTONOMO = [
   { id: 'Seguro AP', title: 'Seguro de Accidentes Personales', desc: 'Con subrogación a la empresa contratante.' },
   { id: 'DDJJ EPP', title: 'Declaración Jurada de EPP', desc: 'Uso de elementos de protección personal.' },
-  { id: 'Constancia CBU', title: 'Constancia de CBU / Certificado Bancario', desc: 'Cuenta bancaria a nombre del titular.' },
 ];
 
 const REQ_EQUIPOS = [
