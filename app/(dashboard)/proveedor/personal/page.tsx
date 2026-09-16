@@ -34,7 +34,6 @@ export default async function ProviderPersonalPage() {
     const db = createClient();
     await db.from('employees').insert({
       company_id: cId,
-      tenant_id: tId,
       full_name: `${firstName} ${lastName}`.trim(),
       document_id: dni,
       status: 'active'
