@@ -17,14 +17,6 @@ const REQ_AUTONOMO = [
   { id: 'DDJJ EPP', title: 'Declaración Jurada de EPP', desc: 'Uso de elementos de protección personal.' },
 ];
 
-const REQ_EQUIPOS = [
-  { id: 'SeguroEquipo', title: 'Seguro del equipo', desc: 'Póliza vigente de la maquinaria.' },
-  { id: 'CertEquipo', title: 'Certificación de equipo(s)', desc: 'Unificar en un solo PDF si son varios.' },
-  { id: 'AccesoriosIzaje', title: 'Certificados accesorios izaje', desc: 'Eslingas, grilletes, fajas.' },
-  { id: 'CertOperador', title: 'Certificación operador', desc: 'Carnet habilitante para operar máquina.' },
-  { id: 'CertEslingador', title: 'Certificación eslingador', desc: 'Credencial habilitante.' },
-];
-
 const REQ_ALTURA = [
   { id: 'CursoAltura', title: 'Capacitación trabajo en altura', desc: 'Constancia de curso vigente.' },
   { id: 'AptoMedico', title: 'Apto médico', desc: 'Especificar aptitud para altura.' },
@@ -226,7 +218,6 @@ export default async function ProviderDashboard() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
             {[
-              { key: 'equipos', label: 'Equipos y Vehículos', color: 'text-indigo-600 focus:ring-indigo-500' },
               { key: 'altura', label: 'Trabajos en Altura', color: 'text-orange-500 focus:ring-orange-500' },
               { key: 'obra', label: 'Obra Constructiva', color: 'text-purple-600 focus:ring-purple-500' }
             ].map((mod) => (
@@ -259,7 +250,6 @@ export default async function ProviderDashboard() {
         ? renderSection("Requisitos Autónomo (Ingreso Básico)", REQ_AUTONOMO, "slate")
         : renderSection("Requisitos Relación de Dependencia", REQ_RELACION, "slate")}
       
-      {mods.equipos && renderSection("Trabajos con Equipos y Maquinaria", REQ_EQUIPOS, "indigo")}
       {mods.altura && renderSection("Trabajos en Altura", REQ_ALTURA, "orange")}
       {mods.obra && renderSection("Trabajos de Obra Constructiva", REQ_OBRA, "purple")}
 
