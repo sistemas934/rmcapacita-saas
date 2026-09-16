@@ -1,6 +1,5 @@
 "use server";
 
-import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/utils/supabase/server";
 
 export async function auditDocumentWithAI(docId: string, documentType: string, fileUrl: string, companyName: string) {
@@ -12,8 +11,6 @@ export async function auditDocumentWithAI(docId: string, documentType: string, f
     const p3 = "C3pxWjhRyyoCRT0mh7TPdOAHvw";
     const fallbackKey = p1 + p2 + p3;
     const apiKey = process.env.GEMINI_API_KEY || fallbackKey;
-
-    const ai = new GoogleGenAI({ apiKey });
     
     // Descargar el archivo desde Supabase para pasarlo a Gemini
     const response = await fetch(fileUrl);
@@ -42,29 +39,37 @@ Formato de salida JSON estricto:
 {"verdict": "...", "suggestedStatus": "APPROVED"}
 `;
 
-    const modelResponse = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: prompt },
-            {
-              inlineData: {
-                data: buffer.toString("base64"),
-                mimeType: mimeType
-              }
-            }
-          ]
+    // Hacer la petición HTTP cruda directamente a la API de Google (sin SDK)
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    
+    const geminiResponse = await fetch(geminiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: prompt },
+              { inlineData: { data: buffer.toString("base64"), mimeType: mimeType } }
+            ]
+          }
+        ],
+        generationConfig: {
+          responseMimeType: "application/json"
         }
-      ],
-      config: {
-        responseMimeType: "application/json"
-      }
+      })
     });
 
-    const text = modelResponse.text;
-    if (!text) return { error: "La IA no devolvió respuesta." };
+    const data = await geminiResponse.json();
+
+    if (!geminiResponse.ok) {
+      console.error("Gemini API Error:", data);
+      return { error: data.error?.message || "Error al conectar con la IA." };
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) return { error: "La IA no devolvió respuesta de texto." };
     
     const result = JSON.parse(text);
     return { success: true, verdict: result.verdict, suggestedStatus: result.suggestedStatus };
