@@ -92,6 +92,9 @@ export async function middleware(request: NextRequest) {
     if (role === 'TENANT_ADMIN' && path.startsWith('/superadmin')) {
       return NextResponse.redirect(new URL('/admin', request.url));
     }
+    if (role === 'SUPER_ADMIN' && !path.startsWith('/superadmin')) {
+      return NextResponse.redirect(new URL('/superadmin', request.url));
+    }
   }
 
   return response
