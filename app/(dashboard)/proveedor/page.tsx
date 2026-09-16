@@ -29,6 +29,22 @@ const REQ_OBRA = [
   { id: 'PlanTrabajo', title: 'Plan de trabajo (Si aplica)', desc: 'Cronograma detallado.' },
 ];
 
+const REQ_VEHICLE = [
+  { id: 'SeguroVehiculo', title: 'Seguro Automotor', desc: 'Póliza vigente con cláusula de no repetición.' },
+];
+
+const REQ_EQUIP_IZAJE = [
+  { id: 'SeguroEquipo', title: 'Seguro del Equipo', desc: 'Póliza vigente con cláusula de no repetición.' },
+  { id: 'CertOperatividad', title: 'Certificado de Operatividad', desc: 'Vigencia máxima 1 año.' },
+  { id: 'CertAccesorios', title: 'Certificado de Accesorios', desc: 'Eslingas, grilletes, fajas.' },
+  { id: 'CheckList', title: 'Check List del Equipo', desc: 'Revisión técnica o mantenimiento.' },
+];
+
+const REQ_EQUIP_SUELO = [
+  { id: 'SeguroEquipo', title: 'Seguro del Equipo', desc: 'Póliza vigente con cláusula de no repetición.' },
+  { id: 'CheckList', title: 'Mantenimiento / Check List', desc: 'Revisión preventiva.' },
+];
+
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -76,12 +92,16 @@ export default async function ProviderDashboard() {
     { data: comp },
     { data: documents },
     { data: allPolicies },
-    { data: acceptedPolicies }
+    { data: acceptedPolicies },
+    { data: vehicles },
+    { data: equipment }
   ] = await Promise.all([
     supabase.from('companies').select('legal_name, active_modules, provider_type').eq('id', companyId).single(),
     supabase.from('documents').select('*').eq('company_id', companyId),
     supabase.from('policies').select('*').eq('tenant_id', tenantId),
-    supabase.from('company_policies_acceptance').select('policy_id').eq('company_id', companyId)
+    supabase.from('company_policies_acceptance').select('policy_id').eq('company_id', companyId),
+    supabase.from('vehicles').select('*').eq('company_id', companyId),
+    supabase.from('equipment').select('*').eq('company_id', companyId)
   ]);
 
   const mods = comp?.active_modules || { equipos: false, altura: false, obra: false };
@@ -109,7 +129,7 @@ export default async function ProviderDashboard() {
   // Server action inside component for accepting policy (must be passed to a form or extracted)
   // Actually, we need to extract the server action to the top level.
 
-  const renderSection = (title: string, list: any[], modColor: string) => {
+  const renderSection = (title: string, list: any[], modColor: string, entityId?: string, entityType?: 'vehicle' | 'equipment') => {
     return (
       <div className={`bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-8 ${hasPendingPolicies ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
         <div className={`px-6 py-4 border-b border-slate-100 bg-${modColor}-50/50 flex items-center gap-3`}>
@@ -121,7 +141,12 @@ export default async function ProviderDashboard() {
 
         <div className="divide-y divide-slate-100">
           {list.map((req) => {
-            const uploadedDoc = docs.find(d => d.document_type === req.id);
+            const uploadedDoc = docs.find(d => {
+              if (d.document_type !== req.id) return false;
+              if (entityType === 'vehicle') return d.vehicle_id === entityId;
+              if (entityType === 'equipment') return d.equipment_id === entityId;
+              return true; // global documents
+            });
             const status = uploadedDoc ? uploadedDoc.status : 'NO_CARGADO';
             const isApproved = status === 'APPROVED';
 
@@ -136,22 +161,31 @@ export default async function ProviderDashboard() {
                     {isApproved ? <FileCheck2 className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-slate-800">{req.title}</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">{req.desc}</p>
+                    <h4 className={`text-sm font-bold ${isApproved ? 'text-semantic-success' : 'text-slate-800'}`}>
+                      {req.title}
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                      {req.desc}
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4 w-full md:w-auto md:justify-end shrink-0">
                   <Badge status={status} />
                   {!isApproved && !hasPendingPolicies && (
-                    <FileUploadButton documentType={req.id} companyId={companyId} />
+                    <FileUploadButton 
+                      documentType={req.id} 
+                      companyId={companyId} 
+                      vehicleId={entityType === 'vehicle' ? entityId : undefined}
+                      equipmentId={entityType === 'equipment' ? entityId : undefined}
+                    />
                   )}
                   {hasPendingPolicies && (
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-3 py-2 rounded-lg">Bloqueado</span>
                   )}
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       </div>
@@ -252,6 +286,28 @@ export default async function ProviderDashboard() {
       
       {mods.altura && renderSection("Trabajos en Altura", REQ_ALTURA, "orange")}
       {mods.obra && renderSection("Trabajos de Obra Constructiva", REQ_OBRA, "purple")}
+
+      {vehicles && vehicles.map((veh: any) => 
+        renderSection(
+          `Vehículo: ${veh.brand} ${veh.model} (Patente: ${veh.domain})`, 
+          REQ_VEHICLE, 
+          "sky", 
+          veh.id, 
+          'vehicle'
+        )
+      )}
+
+      {equipment && equipment.map((eq: any) => {
+        const reqList = eq.category === 'izaje' ? REQ_EQUIP_IZAJE : REQ_EQUIP_SUELO;
+        const catName = eq.category === 'izaje' ? 'Izaje' : eq.category === 'movimiento_suelo' ? 'Mov. Suelo' : 'General';
+        return renderSection(
+          `Equipo (${catName}): ${eq.description} (ID: ${eq.internal_id})`, 
+          reqList, 
+          "amber", 
+          eq.id, 
+          'equipment'
+        );
+      })}
 
     </div>
   );

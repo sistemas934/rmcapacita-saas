@@ -5,7 +5,19 @@ import { createClient } from "@/utils/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function FileUploadButton({ documentType, companyId }: { documentType: string, companyId: string }) {
+export function FileUploadButton({ 
+  documentType, 
+  companyId,
+  employeeId,
+  vehicleId,
+  equipmentId
+}: { 
+  documentType: string, 
+  companyId: string,
+  employeeId?: string,
+  vehicleId?: string,
+  equipmentId?: string
+}) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
@@ -22,28 +34,27 @@ export function FileUploadButton({ documentType, companyId }: { documentType: st
 
     setUploading(true);
     try {
-      // 1. Crear un nombre único para el archivo (ID de empresa + fecha)
       const fileExt = file.name.split('.').pop();
       const fileName = `${companyId}-${Date.now()}.${fileExt}`;
       
-      // 2. Subir el archivo físico a la bóveda (Bucket) 'documentos'
       const { error: uploadError } = await supabase.storage
         .from('documentos')
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      // 3. Obtener el enlace público del archivo subido
       const { data: urlData } = supabase.storage
         .from('documentos')
         .getPublicUrl(fileName);
 
-      // 4. Registrar en la base de datos que este documento existe y está PENDIENTE
       const { error: dbError } = await supabase.from('documents').insert({
         company_id: companyId,
         document_type: documentType,
         file_url: urlData.publicUrl,
-        status: 'PENDING' // Entra en estado de revisión
+        status: 'PENDING',
+        employee_id: employeeId || null,
+        vehicle_id: vehicleId || null,
+        equipment_id: equipmentId || null
       });
 
       if (dbError) throw dbError;
