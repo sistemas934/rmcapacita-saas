@@ -92,16 +92,12 @@ export default async function ProviderDashboard() {
     { data: comp },
     { data: documents },
     { data: allPolicies },
-    { data: acceptedPolicies },
-    { data: vehicles },
-    { data: equipment }
+    { data: acceptedPolicies }
   ] = await Promise.all([
     supabase.from('companies').select('legal_name, active_modules, provider_type').eq('id', companyId).single(),
     supabase.from('documents').select('*').eq('company_id', companyId),
     supabase.from('policies').select('*').eq('tenant_id', tenantId),
-    supabase.from('company_policies_acceptance').select('policy_id').eq('company_id', companyId),
-    supabase.from('vehicles').select('*').eq('company_id', companyId),
-    supabase.from('equipment').select('*').eq('company_id', companyId)
+    supabase.from('company_policies_acceptance').select('policy_id').eq('company_id', companyId)
   ]);
 
   const mods = comp?.active_modules || { equipos: false, altura: false, obra: false };
@@ -286,28 +282,6 @@ export default async function ProviderDashboard() {
       
       {mods.altura && renderSection("Trabajos en Altura", REQ_ALTURA, "orange")}
       {mods.obra && renderSection("Trabajos de Obra Constructiva", REQ_OBRA, "purple")}
-
-      {vehicles && vehicles.map((veh: any) => 
-        renderSection(
-          `Vehículo: ${veh.brand} ${veh.model} (Patente: ${veh.domain})`, 
-          REQ_VEHICLE, 
-          "sky", 
-          veh.id, 
-          'vehicle'
-        )
-      )}
-
-      {equipment && equipment.map((eq: any) => {
-        const reqList = eq.category === 'izaje' ? REQ_EQUIP_IZAJE : REQ_EQUIP_SUELO;
-        const catName = eq.category === 'izaje' ? 'Izaje' : eq.category === 'movimiento_suelo' ? 'Mov. Suelo' : 'General';
-        return renderSection(
-          `Equipo (${catName}): ${eq.description} (ID: ${eq.internal_id})`, 
-          reqList, 
-          "amber", 
-          eq.id, 
-          'equipment'
-        );
-      })}
 
     </div>
   );

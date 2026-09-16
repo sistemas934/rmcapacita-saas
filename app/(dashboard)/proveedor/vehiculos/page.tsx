@@ -1,11 +1,21 @@
-﻿import { createClient } from "@/utils/supabase/server";
-import { Truck, ShieldCheck, Users } from "lucide-react";
+import { createClient } from "@/utils/supabase/server";
+import { Truck, ShieldCheck, Users, FileText } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { AddVehicleForm } from "@/components/proveedor/AddVehicleForm";
+import { DocumentModal } from "@/components/proveedor/DocumentModal";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProviderVehiclesPage() {
+const REQ_VEHICLE = [
+  { id: 'SeguroVehiculo', title: 'Seguro Automotor', desc: 'Póliza vigente con cláusula de no repetición.' },
+];
+
+export default async function ProviderVehiclesPage({
+  searchParams
+}: {
+  searchParams: { doc_vehicle?: string }
+}) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return <div>No autorizado</div>;
@@ -16,7 +26,13 @@ export default async function ProviderVehiclesPage() {
 
   if (!companyId) return <div className="p-8 font-bold text-center text-rose-600">Error: No tienes una empresa asignada.</div>;
 
-  const { data: vehicles } = await supabase.from("vehicles").select("*").eq("company_id", companyId).order("created_at", { ascending: false });
+  const [
+    { data: vehicles },
+    { data: documents }
+  ] = await Promise.all([
+    supabase.from("vehicles").select("*").eq("company_id", companyId).order("created_at", { ascending: false }),
+    supabase.from("documents").select("*").eq("company_id", companyId)
+  ]);
 
   async function addVehicle(formData: FormData) {
     "use server";
@@ -41,8 +57,23 @@ export default async function ProviderVehiclesPage() {
     return { success: true };
   }
 
+  const selectedVehicle = searchParams.doc_vehicle ? vehicles?.find(v => v.id === searchParams.doc_vehicle) : null;
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      
+      {selectedVehicle && (
+        <DocumentModal 
+          title={`Documentos: ${selectedVehicle.brand} ${selectedVehicle.model} (${selectedVehicle.domain})`}
+          entityId={selectedVehicle.id}
+          entityType="vehicle"
+          companyId={companyId}
+          requirements={REQ_VEHICLE}
+          docs={documents || []}
+          closeHref="/proveedor/vehiculos"
+        />
+      )}
+
       <div className="mb-8 flex justify-between items-end">
         <div>
           <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
@@ -78,7 +109,7 @@ export default async function ProviderVehiclesPage() {
                   <th className="px-6 py-4">Patente</th>
                   <th className="px-6 py-4">Marca y Modelo</th>
                   <th className="px-6 py-4">Año</th>
-                  <th className="px-6 py-4 text-right">Estado</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -87,10 +118,13 @@ export default async function ProviderVehiclesPage() {
                     <td className="px-6 py-4 font-bold text-slate-800 uppercase">{veh.domain}</td>
                     <td className="px-6 py-4 font-medium text-slate-500">{veh.brand} {veh.model}</td>
                     <td className="px-6 py-4 text-slate-500">{veh.year}</td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="inline-flex items-center gap-1 bg-semantic-success/10 text-semantic-success font-bold text-[10px] uppercase px-2.5 py-1 rounded-full border border-semantic-success/20">
-                        <ShieldCheck className="w-3 h-3" /> Registrado
-                      </span>
+                    <td className="px-6 py-4 text-right flex justify-end gap-2">
+                      <Link 
+                        href={`/proveedor/vehiculos?doc_vehicle=${veh.id}`}
+                        className="inline-flex items-center gap-1.5 bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary font-bold text-[11px] uppercase px-3 py-1.5 rounded border border-brand-primary/20 transition-colors"
+                      >
+                        <FileText className="w-3.5 h-3.5" /> Docs
+                      </Link>
                     </td>
                   </tr>
                 ))}
