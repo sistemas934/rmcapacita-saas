@@ -74,8 +74,21 @@ export default async function ProviderDashboard() {
 
   if (!companyId) return <div className="p-8 font-bold text-center text-rose-600">Error: No tienes una empresa asignada. Contacta al administrador.</div>;
 
-  // 3. Traer los datos reales de esa empresa
-  const { data: comp } = await supabase.from('companies').select('legal_name, active_modules, provider_type').eq('id', companyId).single();
+  const tenantId = roleData?.tenant_id;
+
+  // 3. Traer todos los datos en paralelo (Modo Turbo)
+  const [
+    { data: comp },
+    { data: documents },
+    { data: allPolicies },
+    { data: acceptedPolicies }
+  ] = await Promise.all([
+    supabase.from('companies').select('legal_name, active_modules, provider_type').eq('id', companyId).single(),
+    supabase.from('documents').select('*').eq('company_id', companyId),
+    supabase.from('policies').select('*').eq('tenant_id', tenantId),
+    supabase.from('company_policies_acceptance').select('policy_id').eq('company_id', companyId)
+  ]);
+
   const mods = comp?.active_modules || { equipos: false, altura: false, obra: false };
   const providerType = comp?.provider_type || 'relacion_dependencia';
 
@@ -88,18 +101,9 @@ export default async function ProviderDashboard() {
     revalidatePath('/proveedor');
   }
 
-  // 4. Traer documentos
-  const { data: documents } = await supabase.from('documents').select('*').eq('company_id', companyId);
   const docs = documents || [];
 
   // 5. Políticas y Cumplimiento
-  const tenantId = roleData?.tenant_id;
-  
-  // Buscar todas las políticas del tenant
-  const { data: allPolicies } = await supabase.from('policies').select('*').eq('tenant_id', tenantId);
-  
-  // Buscar las que ya aceptó esta empresa
-  const { data: acceptedPolicies } = await supabase.from('company_policies_acceptance').select('policy_id').eq('company_id', companyId);
   const acceptedIds = acceptedPolicies?.map(p => p.policy_id) || [];
   
   const pendingPolicies = allPolicies?.filter(p => !acceptedIds.includes(p.id)) || [];
