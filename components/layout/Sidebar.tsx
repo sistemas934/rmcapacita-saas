@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Building, Clock, UserPlus, Shield } from "lucide-react";
+import { Building, Clock, UserPlus, Shield, Truck, Wrench } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { LogoutButton } from "./LogoutButton";
 
@@ -71,6 +71,14 @@ export async function Sidebar() {
               <Link href="/proveedor/personal" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors focus:bg-slate-50">
                 <UserPlus className="w-4 h-4 text-slate-400" />
                 Personal Autorizado
+              </Link>
+              <Link href="/proveedor/vehiculos" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors focus:bg-slate-50">
+                <Truck className="w-4 h-4 text-slate-400" />
+                Flota de Vehículos
+              </Link>
+              <Link href="/proveedor/equipos" className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors focus:bg-slate-50">
+                <Wrench className="w-4 h-4 text-slate-400" />
+                Mis Equipos
               </Link>
             </>
           ) : null}
