@@ -252,8 +252,8 @@ export default async function ProviderDashboard() {
               <p className="text-xs text-slate-500 font-medium mt-1">Activa solo si aplica a tus tareas.</p>
             </div>
             <div className="p-5 space-y-4">
-              <ModuleToggle companyId={companyId} id="altura" title="Trabajo en Altura" desc="Andamios o más de 2 metros." isChecked={mods.altura} toggleAction={toggleModule} />
-              <ModuleToggle companyId={companyId} id="obra" title="Trabajo de Obra" desc="Modificaciones civiles." isChecked={mods.obra} toggleAction={toggleModule} />
+              <ModuleToggle companyId={companyId} modKey="altura" label="Trabajo en Altura" color="text-orange-500 focus:ring-orange-500" initialState={mods.altura} toggleAction={toggleModule} />
+              <ModuleToggle companyId={companyId} modKey="obra" label="Trabajo de Obra" color="text-purple-600 focus:ring-purple-500" initialState={mods.obra} toggleAction={toggleModule} />
             </div>
           </div>
         </div>
