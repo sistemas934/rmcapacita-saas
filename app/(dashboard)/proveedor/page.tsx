@@ -166,7 +166,7 @@ export default async function ProviderDashboard() {
           <FolderOpen className="text-brand-primary w-6 h-6" /> Gestión Documental
         </h2>
         <p className="text-slate-500 font-medium text-sm mt-2">
-          Empresa Activa: <span className="font-bold text-slate-800">{company?.legal_name || 'Cargando...'}</span>
+          Empresa Activa: <span className="font-bold text-slate-800">{comp?.legal_name || 'Cargando...'}</span>
         </p>
       </div>
 
