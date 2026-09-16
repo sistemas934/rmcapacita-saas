@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/utils/supabase/server";
@@ -59,7 +59,7 @@ Formato de salida JSON estricto:
       }
     });
 
-    const text = modelResponse.text();
+    const text = modelResponse.text;
     if (!text) return { error: "La IA no devolvió respuesta." };
     
     const result = JSON.parse(text);

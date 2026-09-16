@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/server";
 import { Users, FileText, FileCheck2 } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { AddEmployeeForm } from "@/components/proveedor/AddEmployeeForm";
@@ -105,8 +105,8 @@ export default async function ProviderPersonalPage({
           entityId={selectedEmployee.id}
           entityType="employee"
           companyId={companyId}
-          tenantId={tenantId}
-          backUrl="/proveedor/personal"
+          docs={docs.filter(d => d.employee_id === selectedEmployee.id)}
+          closeHref="/proveedor/personal"
         />
       )}
 

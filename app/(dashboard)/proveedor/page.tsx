@@ -302,7 +302,7 @@ export default async function ProviderDashboard() {
                       {status !== 'APPROVED' && status !== 'PENDING' && (
                         <FileUploadButton 
                           companyId={companyId}
-                          tenantId={tenantId}
+                          
                           documentType={req.id}
                         />
                       )}
@@ -337,7 +337,7 @@ export default async function ProviderDashboard() {
                       <div className="flex items-center gap-4">
                         <Badge status={status} />
                         {status !== 'APPROVED' && status !== 'PENDING' && (
-                          <FileUploadButton companyId={companyId} tenantId={tenantId} documentType={req.id} />
+                          <FileUploadButton companyId={companyId}  documentType={req.id} />
                         )}
                       </div>
                     </div>
@@ -370,7 +370,7 @@ export default async function ProviderDashboard() {
                       <div className="flex items-center gap-4">
                         <Badge status={status} />
                         {status !== 'APPROVED' && status !== 'PENDING' && (
-                          <FileUploadButton companyId={companyId} tenantId={tenantId} documentType={req.id} />
+                          <FileUploadButton companyId={companyId}  documentType={req.id} />
                         )}
                       </div>
                     </div>
