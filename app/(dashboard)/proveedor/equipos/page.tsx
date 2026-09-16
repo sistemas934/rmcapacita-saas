@@ -56,7 +56,7 @@ export default async function ProviderEquipmentPage({
       internal_id: internalId.trim().toUpperCase(),
       category: category,
       description: description.trim(),
-      status: "active"
+      status: "ACTIVE"
     });
 
     if (error) return { error: error.message };

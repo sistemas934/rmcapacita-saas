@@ -49,7 +49,7 @@ export default async function ProviderVehiclesPage({
       brand: brand.trim(),
       model: model.trim(),
       year: parseInt(yearStr) || new Date().getFullYear(),
-      status: "active"
+      status: "ACTIVE"
     });
 
     if (error) return { error: error.message };
