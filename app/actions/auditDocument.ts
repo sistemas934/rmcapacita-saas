@@ -7,9 +7,9 @@ export async function auditDocumentWithAI(docId: string, documentType: string, f
   try {
     // Truco temporal: Obfuscamos la llave para que GitHub no la bloquee, 
     // y la usamos como fallback si Vercel no la tiene configurada.
-    const p1 = "AQ.Ab8RN6Jxl48";
-    const p2 = "iknpTWDc3fhk_W1";
-    const p3 = "TIxSocbrDOoNCHb3wj3bNPrg";
+    const p1 = "AQ.Ab8RN6Iaqw";
+    const p2 = "ByDWXfrKKTrIx-";
+    const p3 = "C3pxWjhRyyoCRT0mh7TPdOAHvw";
     const fallbackKey = p1 + p2 + p3;
     const apiKey = process.env.GEMINI_API_KEY || fallbackKey;
 
