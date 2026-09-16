@@ -100,60 +100,60 @@ export default async function ProviderVehiclesPage({
 
       <div className="mb-8 flex justify-between items-end">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-            <Truck className="w-8 h-8 text-brand-primary" />
+          <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+            <Truck className="w-8 h-8 text-blue-600" />
             Flota de Vehículos
           </h2>
           <p className="text-slate-500 font-medium mt-2 text-sm">
-            Registra camionetas, autos y camiones de tu empresa.
+            Gestión corporativa de patentes y autorizaciones de ingreso.
           </p>
         </div>
       </div>
 
       <AddVehicleForm companyId={companyId} addAction={addVehicle} />
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h3 className="text-sm font-bold text-slate-800">Mis Vehículos</h3>
-          <span className="bg-brand-primary/10 text-brand-primary font-bold text-xs px-2.5 py-1 rounded-full">
-            {vehicles?.length || 0} Registrados
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mt-6">
+        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-gradient-to-b from-white to-slate-50">
+          <h3 className="text-sm font-bold text-slate-800">Unidades Registradas</h3>
+          <span className="bg-blue-50 text-blue-700 font-bold text-[10px] px-2.5 py-1 rounded-md border border-blue-100 uppercase tracking-wider">
+            {vehicles?.length || 0} Vehículos
           </span>
         </div>
         
         {!vehicles || vehicles.length === 0 ? (
-          <div className="text-center py-16">
-            <Truck className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-bold text-sm">No tienes vehículos registrados.</p>
+          <div className="flex flex-col items-center justify-center py-16 bg-slate-50/30">
+            <Truck className="w-10 h-10 text-slate-300 mb-3" />
+            <p className="text-slate-600 font-bold text-sm">No tienes vehículos registrados.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-white text-slate-400 text-xs uppercase tracking-wider font-bold border-b border-slate-100">
+              <thead className="bg-slate-50/80 text-slate-500 font-bold text-xs uppercase tracking-wider border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4">Patente</th>
-                  <th className="px-6 py-4">Marca y Modelo</th>
-                  <th className="px-6 py-4">Año</th>
-                  <th className="px-6 py-4">Estado</th>
-                  <th className="px-6 py-4 text-right">Acciones</th>
+                  <th className="px-5 py-4">Patente</th>
+                  <th className="px-5 py-4">Marca y Modelo</th>
+                  <th className="px-5 py-4">Año</th>
+                  <th className="px-5 py-4">Estado</th>
+                  <th className="px-5 py-4 text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-100">
                 {vehicles.map((veh) => {
                   const status = getComplianceStatus(veh.id);
                   return (
-                    <tr key={veh.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4 font-bold text-slate-800 uppercase">{veh.domain}</td>
-                      <td className="px-6 py-4 font-medium text-slate-500">{veh.brand} {veh.model}</td>
-                      <td className="px-6 py-4 text-slate-500">{veh.year}</td>
-                      <td className="px-6 py-4">
+                    <tr key={veh.id} className="hover:bg-blue-50/30 transition-colors group">
+                      <td className="px-5 py-4 font-bold text-slate-800 uppercase">{veh.domain}</td>
+                      <td className="px-5 py-4 font-medium text-slate-500">{veh.brand} {veh.model}</td>
+                      <td className="px-5 py-4 text-slate-500">{veh.year}</td>
+                      <td className="px-5 py-4">
                         <Badge status={status} />
                       </td>
-                      <td className="px-6 py-4 text-right flex justify-end gap-2">
+                      <td className="px-5 py-4 text-right flex justify-end gap-2">
                         <Link 
                           href={`/proveedor/vehiculos?doc_vehicle=${veh.id}`}
-                          className="inline-flex items-center gap-1.5 bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary font-bold text-[11px] uppercase px-3 py-1.5 rounded border border-brand-primary/20 transition-colors"
+                          className="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-md border border-slate-200 hover:border-blue-200 transition-all shadow-sm group-hover:shadow"
                         >
-                          <FileText className="w-3.5 h-3.5" /> Docs
+                          <FileText className="w-3.5 h-3.5" /> Documentación
                         </Link>
                       </td>
                     </tr>
