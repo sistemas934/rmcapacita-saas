@@ -1,9 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
-export function AddEmployeeForm({ companyId, tenantId, addAction }: { companyId: string, tenantId: string, addAction: (formData: FormData) => Promise<void> }) {
+export function AddEmployeeForm({ companyId, tenantId, addAction }: { companyId: string, tenantId: string, addAction: (formData: FormData) => Promise<{error?: string, success?: boolean}> }) {
   const [loading, setLoading] = useState(false);
 
   return (
@@ -11,8 +12,16 @@ export function AddEmployeeForm({ companyId, tenantId, addAction }: { companyId:
       className="bg-white border border-slate-200 p-6 rounded-2xl mb-8 flex flex-col md:flex-row gap-4 items-end shadow-sm"
       action={async (formData) => {
         setLoading(true);
-        await addAction(formData);
+        const res = await addAction(formData);
         setLoading(false);
+        if (res?.error) {
+          toast.error(res.error);
+        } else {
+          toast.success("Empleado agregado exitosamente");
+          // Clear form (could use a ref, but resetting inputs works)
+          const elements = document.querySelectorAll('input[type="text"]');
+          elements.forEach(el => (el as HTMLInputElement).value = '');
+        }
       }}
     >
       <input type="hidden" name="companyId" value={companyId} />

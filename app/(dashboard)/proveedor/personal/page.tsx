@@ -29,16 +29,21 @@ export default async function ProviderPersonalPage() {
     const lastName = formData.get("lastName") as string;
     const dni = formData.get("dni") as string;
     const cId = formData.get("companyId") as string;
-    const tId = formData.get("tenantId") as string;
     
     const db = createClient();
-    await db.from('employees').insert({
+    const { error } = await db.from('employees').insert({
       company_id: cId,
       full_name: `${firstName} ${lastName}`.trim(),
       document_id: dni,
       status: 'active'
     });
+    
+    if (error) {
+      return { error: error.message };
+    }
+    
     revalidatePath('/proveedor/personal');
+    return { success: true };
   }
 
   return (
