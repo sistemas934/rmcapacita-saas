@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+ï»¿import { createClient } from "@/utils/supabase/server";
 import { Users, FileText, FileCheck2 } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { AddEmployeeForm } from "@/components/proveedor/AddEmployeeForm";
@@ -114,10 +114,10 @@ export default async function ProviderPersonalPage({
         <div>
           <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
             <Users className="w-8 h-8 text-blue-600" />
-            Nómina de Personal
+            NÃ³mina de Personal
           </h2>
           <p className="text-slate-500 font-medium mt-2 text-sm">
-            Gestión corporativa de operarios y autorizaciones de ingreso.
+            GestiÃ³n corporativa de operarios y autorizaciones de ingreso.
           </p>
         </div>
       </div>
@@ -163,7 +163,7 @@ export default async function ProviderPersonalPage({
                           href={`/proveedor/personal?doc_employee=${emp.id}`}
                           className="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-md border border-slate-200 hover:border-blue-200 transition-all shadow-sm group-hover:shadow"
                         >
-                          <FileText className="w-3.5 h-3.5" /> Documentación
+                          <FileText className="w-3.5 h-3.5" /> DocumentaciÃ³n
                         </Link>
                       </td>
                     </tr>

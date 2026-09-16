@@ -8,21 +8,21 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 
 const REQ_RELACION = [
-  { id: 'Seguro SVO', title: 'Seguro de Vida Obligatorio (SVO)', desc: 'Con subrogación a la empresa contratante.' },
-  { id: 'Seguro ART', title: 'Certificado de Cobertura ART', desc: 'Cláusula de no repetición incluida.' },
+  { id: 'Seguro SVO', title: 'Seguro de Vida Obligatorio (SVO)', desc: 'Con subrogaciÃ³n a la empresa contratante.' },
+  { id: 'Seguro ART', title: 'Certificado de Cobertura ART', desc: 'ClÃ¡usula de no repeticiÃ³n incluida.' },
   { id: 'Planilla EPP', title: 'Planilla de Entrega EPP 299/11', desc: 'Firmada por el empleado.' },
 ];
 
 const REQ_AUTONOMO = [
-  { id: 'Seguro AP', title: 'Seguro de Accidentes Personales', desc: 'Con subrogación a la empresa contratante.' },
-  { id: 'DDJJ EPP', title: 'Declaración Jurada de EPP', desc: 'Uso de elementos de protección personal.' },
+  { id: 'Seguro AP', title: 'Seguro de Accidentes Personales', desc: 'Con subrogaciÃ³n a la empresa contratante.' },
+  { id: 'DDJJ EPP', title: 'DeclaraciÃ³n Jurada de EPP', desc: 'Uso de elementos de protecciÃ³n personal.' },
 ];
 
 const REQ_ALTURA = [
-  { id: 'CursoAltura', title: 'Capacitación trabajo en altura', desc: 'Constancia de curso vigente.' },
-  { id: 'AptoMedico', title: 'Apto médico', desc: 'Especificar aptitud para altura.' },
+  { id: 'CursoAltura', title: 'CapacitaciÃ³n trabajo en altura', desc: 'Constancia de curso vigente.' },
+  { id: 'AptoMedico', title: 'Apto mÃ©dico', desc: 'Especificar aptitud para altura.' },
   { id: 'PlanRescate', title: 'Plan de rescate (> 6 mts)', desc: 'Procedimiento de emergencia.' },
-  { id: 'SeguroAltura', title: 'Seguro de altura (> 4 mts)', desc: 'Cobertura específica requerida.' },
+  { id: 'SeguroAltura', title: 'Seguro de altura (> 4 mts)', desc: 'Cobertura especÃ­fica requerida.' },
 ];
 
 const REQ_OBRA = [
@@ -103,7 +103,7 @@ export default async function ProviderDashboard() {
   const providerType = comp?.provider_type || 'relacion_dependencia';
   const docs = documents || [];
 
-  // Políticas
+  // PolÃ­ticas
   const acceptedIds = acceptedPolicies?.map(p => p.policy_id) || [];
   const pendingPolicies = allPolicies?.filter(p => !acceptedIds.includes(p.id)) || [];
   const hasPendingPolicies = pendingPolicies.length > 0;
@@ -142,8 +142,8 @@ export default async function ProviderDashboard() {
         </h2>
         <p className="text-slate-500 font-medium text-sm mt-2">
           {isBaseComplete 
-            ? "¡Excelente! La base de tu empresa está validada. Ya puedes gestionar ingresos de personal o activos."
-            : "Completa la documentación legal de la empresa para habilitar los pases de ingreso."}
+            ? "Â¡Excelente! La base de tu empresa estÃ¡ validada. Ya puedes gestionar ingresos de personal o activos."
+            : "Completa la documentaciÃ³n legal de la empresa para habilitar los pases de ingreso."}
         </p>
       </div>
 
@@ -155,9 +155,9 @@ export default async function ProviderDashboard() {
               <AlertCircle className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-black text-red-900 mb-2">Atención: Términos y Políticas Pendientes</h3>
+              <h3 className="text-lg font-black text-red-900 mb-2">AtenciÃ³n: TÃ©rminos y PolÃ­ticas Pendientes</h3>
               <p className="text-red-700 text-sm font-medium mb-4">
-                Debes leer y aceptar las políticas del predio antes de subir documentación de tu empresa o de tus operarios.
+                Debes leer y aceptar las polÃ­ticas del predio antes de subir documentaciÃ³n de tu empresa o de tus operarios.
               </p>
               
               <div className="space-y-4">
@@ -204,7 +204,7 @@ export default async function ProviderDashboard() {
             2
           </div>
           <h3 className="text-sm font-bold text-slate-800 mb-1">Personal</h3>
-          <p className="text-xs text-slate-500 font-medium px-2 h-8">Nómina de operarios.</p>
+          <p className="text-xs text-slate-500 font-medium px-2 h-8">NÃ³mina de operarios.</p>
           {isBaseComplete && (
             <Link href="/proveedor/personal" className="mt-4 text-[11px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-4 py-1.5 rounded-md hover:bg-blue-100 transition-colors">
               Ir a Personal
@@ -218,7 +218,7 @@ export default async function ProviderDashboard() {
             3
           </div>
           <h3 className="text-sm font-bold text-slate-800 mb-1">Activos</h3>
-          <p className="text-xs text-slate-500 font-medium px-2 h-8">Vehículos y maquinaria.</p>
+          <p className="text-xs text-slate-500 font-medium px-2 h-8">VehÃ­culos y maquinaria.</p>
           {isBaseComplete && (
             <div className="mt-4 flex gap-2">
               <Link href="/proveedor/vehiculos" className="text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-50 px-3 py-1.5 rounded-md hover:bg-slate-100 border border-slate-200 transition-colors">
@@ -234,15 +234,15 @@ export default async function ProviderDashboard() {
 
       <div className={`grid grid-cols-1 lg:grid-cols-3 gap-8 ${hasPendingPolicies ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
         
-        {/* COLUMNA IZQUIERDA: CONFIGURACIÓN */}
+        {/* COLUMNA IZQUIERDA: CONFIGURACIÃ“N */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-5 border-b border-slate-100 bg-gradient-to-b from-white to-slate-50">
               <h3 className="text-sm font-bold text-slate-800">1. Tipo de Entidad</h3>
-              <p className="text-xs text-slate-500 font-medium mt-1">Define qué documentos legales debes presentar obligatoriamente.</p>
+              <p className="text-xs text-slate-500 font-medium mt-1">Define quÃ© documentos legales debes presentar obligatoriamente.</p>
             </div>
             <div className="p-5">
-              <TypeToggle companyId={companyId} currentType={providerType} toggleAction={toggleType} />
+              <TypeToggle companyId={companyId} initialType={providerType} toggleAction={toggleType} />
             </div>
           </div>
 
@@ -252,18 +252,18 @@ export default async function ProviderDashboard() {
               <p className="text-xs text-slate-500 font-medium mt-1">Activa solo si aplica a tus tareas.</p>
             </div>
             <div className="p-5 space-y-4">
-              <ModuleToggle companyId={companyId} id="altura" title="Trabajo en Altura" desc="Andamios o más de 2 metros." isChecked={mods.altura} toggleAction={toggleModule} />
+              <ModuleToggle companyId={companyId} id="altura" title="Trabajo en Altura" desc="Andamios o mÃ¡s de 2 metros." isChecked={mods.altura} toggleAction={toggleModule} />
               <ModuleToggle companyId={companyId} id="obra" title="Trabajo de Obra" desc="Modificaciones civiles." isChecked={mods.obra} toggleAction={toggleModule} />
             </div>
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: DOCUMENTACIÓN BASE */}
+        {/* COLUMNA DERECHA: DOCUMENTACIÃ“N BASE */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-5 border-b border-slate-100 bg-gradient-to-b from-white to-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-sm font-bold text-slate-800">3. Sube la Documentación Base</h3>
+                <h3 className="text-sm font-bold text-slate-800">3. Sube la DocumentaciÃ³n Base</h3>
                 <p className="text-xs text-slate-500 font-medium mt-1">Obligatorio para que tus empleados y activos puedan ingresar.</p>
               </div>
               <span className="bg-blue-50 text-blue-700 font-bold text-[10px] px-2.5 py-1 rounded-md border border-blue-100 uppercase tracking-wider shrink-0">
@@ -313,11 +313,11 @@ export default async function ProviderDashboard() {
             </div>
           </div>
           
-          {/* Módulos extra si están activos */}
+          {/* MÃ³dulos extra si estÃ¡n activos */}
           {mods.altura && (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden opacity-90 hover:opacity-100 transition-opacity">
               <div className="p-5 border-b border-slate-100 bg-orange-50/30">
-                <h3 className="text-sm font-bold text-slate-800 text-orange-800">Módulo Activado: Trabajo en Altura</h3>
+                <h3 className="text-sm font-bold text-slate-800 text-orange-800">MÃ³dulo Activado: Trabajo en Altura</h3>
               </div>
               <div className="divide-y divide-slate-100">
                 {REQ_ALTURA.map(req => {
@@ -350,7 +350,7 @@ export default async function ProviderDashboard() {
           {mods.obra && (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden opacity-90 hover:opacity-100 transition-opacity">
               <div className="p-5 border-b border-slate-100 bg-purple-50/30">
-                <h3 className="text-sm font-bold text-slate-800 text-purple-800">Módulo Activado: Obra Constructiva</h3>
+                <h3 className="text-sm font-bold text-slate-800 text-purple-800">MÃ³dulo Activado: Obra Constructiva</h3>
               </div>
               <div className="divide-y divide-slate-100">
                 {REQ_OBRA.map(req => {

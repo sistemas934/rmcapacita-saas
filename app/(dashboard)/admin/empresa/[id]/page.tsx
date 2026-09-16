@@ -3,6 +3,7 @@ import { ArrowLeft, Building, FileText, CheckCircle2, FileX, ExternalLink } from
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { revalidatePath } from "next/cache";
+import { AIAuditorButton } from "@/components/admin/AIAuditorButton";
 
 // Server Action para actualizar el estado del documento
 async function updateDocumentStatus(formData: FormData) {
@@ -94,6 +95,15 @@ export default async function EmpresaDetailPage({ params }: { params: { id: stri
                   >
                     <ExternalLink className="w-4 h-4" /> Ver Archivo PDF
                   </a>
+
+                  {doc.status === 'PENDING' && (
+                    <AIAuditorButton 
+                      docId={doc.id}
+                      docType={doc.document_type}
+                      fileUrl={doc.file_url}
+                      companyName={company.legal_name}
+                    />
+                  )}
                 </div>
 
                 {/* Acciones de Auditoría (Aprobar / Rechazar) */}
