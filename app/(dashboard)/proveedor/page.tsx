@@ -5,10 +5,17 @@ import { FileUploadButton } from "@/components/proveedor/FileUploadButton";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
-const REQ_BASIC = [
-  { id: 'Seguro de Vida', title: 'Seguro de Vida Obligatorio (SVO)', desc: 'Con subrogación a la empresa contratante.' },
-  { id: 'Certificado ART', title: 'Certificado de Cobertura ART', desc: 'Cláusula de no repetición incluida.' },
+const REQ_RELACION = [
+  { id: 'Seguro SVO', title: 'Seguro de Vida Obligatorio (SVO)', desc: 'Con subrogación a la empresa contratante.' },
+  { id: 'Seguro ART', title: 'Certificado de Cobertura ART', desc: 'Cláusula de no repetición incluida.' },
+  { id: 'Planilla EPP', title: 'Planilla de Entrega EPP 299/11', desc: 'Firmada por el empleado.' },
   { id: 'Constancia CBU', title: 'Constancia de CBU / Certificado Bancario', desc: 'Cuenta bancaria a nombre de la empresa.' },
+];
+
+const REQ_AUTONOMO = [
+  { id: 'Seguro AP', title: 'Seguro de Accidentes Personales', desc: 'Con subrogación a la empresa contratante.' },
+  { id: 'DDJJ EPP', title: 'Declaración Jurada de EPP', desc: 'Uso de elementos de protección personal.' },
+  { id: 'Constancia CBU', title: 'Constancia de CBU / Certificado Bancario', desc: 'Cuenta bancaria a nombre del titular.' },
 ];
 
 const REQ_EQUIPOS = [
@@ -70,8 +77,18 @@ export default async function ProviderDashboard() {
   if (!companyId) return <div className="p-8 font-bold text-center text-rose-600">Error: No tienes una empresa asignada. Contacta al administrador.</div>;
 
   // 3. Traer los datos reales de esa empresa
-  const { data: company } = await supabase.from('companies').select('id, legal_name, active_modules').eq('id', companyId).single();
-  const mods = company?.active_modules || { equipos: false, altura: false, obra: false };
+  const { data: comp } = await supabase.from('companies').select('legal_name, active_modules, provider_type').eq('id', companyId).single();
+  const mods = comp?.active_modules || { equipos: false, altura: false, obra: false };
+  const providerType = comp?.provider_type || 'relacion_dependencia';
+
+  async function toggleType(formData: FormData) {
+    "use server";
+    const companyId = formData.get('companyId') as string;
+    const pType = formData.get('provider_type') as string;
+    const supabase = createClient();
+    await supabase.from('companies').update({ provider_type: pType }).eq('id', companyId);
+    revalidatePath('/proveedor');
+  }
 
   // 4. Traer documentos
   const { data: documents } = await supabase.from('documents').select('*').eq('company_id', companyId);
@@ -219,7 +236,25 @@ export default async function ProviderDashboard() {
         </div>
       </div>
 
-      {renderSection("Requisitos Mínimos (Ingreso Básico)", REQ_BASIC, "slate")}
+      <div className="bg-white border border-slate-200 p-6 rounded-2xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h3 className="font-bold text-slate-800">Tipo de Contratista</h3>
+          <p className="text-xs text-slate-500">Seleccione si es empresa con empleados o trabajador autónomo.</p>
+        </div>
+        <form action={toggleType} className="flex bg-slate-100 p-1 rounded-lg">
+          <input type="hidden" name="companyId" value={companyId} />
+          <button type="submit" name="provider_type" value="relacion_dependencia" className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${providerType === 'relacion_dependencia' ? 'bg-white text-brand-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            Relación de Dependencia
+          </button>
+          <button type="submit" name="provider_type" value="autonomo" className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${providerType === 'autonomo' ? 'bg-white text-brand-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            Trabajador Autónomo
+          </button>
+        </form>
+      </div>
+
+      {providerType === 'autonomo' 
+        ? renderSection("Requisitos Autónomo (Ingreso Básico)", REQ_AUTONOMO, "slate")
+        : renderSection("Requisitos Relación de Dependencia", REQ_RELACION, "slate")}
       
       {mods.equipos && renderSection("Trabajos con Equipos y Maquinaria", REQ_EQUIPOS, "indigo")}
       {mods.altura && renderSection("Trabajos en Altura", REQ_ALTURA, "orange")}

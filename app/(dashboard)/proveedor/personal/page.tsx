@@ -1,5 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
-import { Users, Info, ShieldCheck } from "lucide-react";
+import { Users, Info, ShieldCheck, Plus, Loader2 } from "lucide-react";
+import { revalidatePath } from "next/cache";
+import { AddEmployeeForm } from "@/components/proveedor/AddEmployeeForm";
 
 export const dynamic = 'force-dynamic';
 
@@ -9,8 +11,9 @@ export default async function ProviderPersonalPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return <div>No autorizado</div>;
 
-  const { data: roleData } = await supabase.from('user_roles').select('company_id').eq('email', user.email).single();
+  const { data: roleData } = await supabase.from('user_roles').select('company_id, tenant_id').eq('email', user.email).single();
   const companyId = roleData?.company_id;
+  const tenantId = roleData?.tenant_id;
 
   if (!companyId) return <div className="p-8 font-bold text-center text-rose-600">Error: No tienes una empresa asignada.</div>;
 
@@ -20,24 +23,40 @@ export default async function ProviderPersonalPage() {
     .eq('company_id', companyId)
     .order('created_at', { ascending: false });
 
+  async function addEmployee(formData: FormData) {
+    "use server";
+    const firstName = formData.get("firstName") as string;
+    const lastName = formData.get("lastName") as string;
+    const dni = formData.get("dni") as string;
+    const cId = formData.get("companyId") as string;
+    const tId = formData.get("tenantId") as string;
+    
+    const db = createClient();
+    await db.from('employees').insert({
+      company_id: cId,
+      tenant_id: tId,
+      full_name: `${firstName} ${lastName}`.trim(),
+      document_id: dni,
+      status: 'active'
+    });
+    revalidatePath('/proveedor/personal');
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-          <Users className="w-8 h-8 text-brand-primary" />
-          Personal Autorizado
-        </h2>
-        <p className="text-slate-500 font-medium mt-2 text-sm">
-          Consulta la nómina de operarios que el Administrador ha habilitado para tu empresa.
-        </p>
+      <div className="mb-8 flex justify-between items-end">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+            <Users className="w-8 h-8 text-brand-primary" />
+            Personal Autorizado
+          </h2>
+          <p className="text-slate-500 font-medium mt-2 text-sm">
+            Administra la nómina de operarios de tu empresa.
+          </p>
+        </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 flex items-start gap-3">
-        <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-        <p className="text-sm text-blue-800">
-          <strong>Aviso:</strong> El alta de nuevo personal la realiza exclusivamente la empresa mandante (Administrador). Si un operario no aparece en esta lista, por favor solicita su alta a tu contacto administrativo.
-        </p>
-      </div>
+      <AddEmployeeForm companyId={companyId} tenantId={tenantId} addAction={addEmployee} />
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
